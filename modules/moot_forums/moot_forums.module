@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function moot_forums_menu() {
+  $items = array();
+  
+  $items['forums'] = array(
+    'title' => t('Forums'),
+    'description' => t('Moot forums. Visit http://moot.it for more information.'),
+    'page callback' => 'moot_forums_page',
+    'access callback' => TRUE,
+    'menu_name' => 'main-menu',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 20
+  );
+  
+  return $items;
+}
+
+function moot_forums_page() {
+  
+  _moot_load_headers();
+
+  $forum_name = variable_get('moot_forum_title', '');
+  $admin_link = "admin/config/content/moot";
+  
+  if(!$forum_name) {
+    return t("No forum name has been set. Set forum name at %admin_link", array("%admin_link" => l($admin_link, $admin_link)));
+  }
+  return l($forum_name, "https://moot.it/i/".$forum_name, array('attributes' => array('class' => 'moot')));
+}

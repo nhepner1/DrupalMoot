@@ -1,0 +1,6 @@
+name = Moot Forums
+description = Moot (http://moot.it) forums.
+package = Moot
+core = 7.x
+
+dependencies[] = moot

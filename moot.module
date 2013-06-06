@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function moot_menu() {
+  $items = array();
+
+  $items['admin/config/content/moot'] = array(
+    'title' => 'Moot',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moot_admin_form'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'moot.admin.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+//function moot_theme() {
+  
+//}
+/**
+ * Implements hook_block_info().
+ */
+function moot_block_info() {
+  $blocks['moot_comments'] = array(
+    'info' => t('Moot Comments')
+  );
+  
+  return $blocks;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function moot_entity_view($entity, $type, $view_mode, $langcode) {
+  _moot_load_headers();
+  
+  if($view_mode == 'full') {
+    switch($type) {
+      case 'node':
+        $path = drupal_get_path('module','moot');
+        $content_url = drupal_get_path_alias(request_uri());
+      
+        $js_settings = array(
+          'forumName' => variable_get('moot_forum_title', ''),
+          'contentUrl' => $content_url,
+          'contentTitle' => $entity->title
+        );
+        drupal_add_js(array('moot' => $js_settings), 'setting');
+        drupal_add_js($path . '/js/moot.js');
+        break;
+    }
+  }
+  //print '<pre>'.print_r($entity, TRUE).'</pre>';
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function moot_block_view($delta = '') {
+  switch($delta) {
+    case 'moot_comments':
+      _moot_load_headers();
+      
+      $forum_name = variable_get('moot_forum_title', '');
+
+      
+      if(!$forum_name) {
+        $block = array();
+        break;
+      }
+      
+      $block['subject'] = t('Moot Comments');
+      $block['content'] = l(t("@forum forums", array('@forum' => ucwords($forum_name))), 'https://moot.it/i/'.$forum_name, array('attributes' => array('class' => 'moot')));
+      break;
+  }
+  
+  return $block;
+}
+
+/**
+ * Helper function to load all headers required for moot integration.
+ */
+function _moot_load_headers() {
+  // Add headers according to documentation at https://moot.it/docs/embedding.html
+  drupal_add_css('http://cdn.moot.it/1/moot.css', array('type' => 'external'));
+  drupal_add_js('http://cdn.moot.it/1/moot.min.js', array('type' => 'external'));
+  $viewport_meta = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'viewport',
+      'content' => 'width=device-width'
+    )
+  );
+  
+  $ie_meta = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'http-equiv' => "X-UA-Compatible",
+      'content' => "IE=edge,chrome=1",
+    )
+  );
+  
+  drupal_add_html_head($viewport_meta, 'moot_viewport_meta');
+  drupal_add_html_head($ie_meta, 'moot_ie_meta');
+}

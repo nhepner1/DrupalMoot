@@ -1,0 +1,7 @@
+name = Moot
+description = Drupal integration for the Moot (http://moot.it) commenting and forums system.
+package = Moot
+core = 7.x
+configure = admin/config/content/moot
+
+dependencies[] = jquery_update
